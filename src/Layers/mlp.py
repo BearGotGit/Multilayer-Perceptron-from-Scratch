@@ -147,7 +147,7 @@ class MultilayerPerceptron:
 
         return total_correct * 1.0 / total
 
-    def _test_regression(self, data_loader: DataLoader) -> np.ndarray:
+    def _test_regression(self, data_loader: DataLoader, denormalizer = None) -> np.ndarray:
         total_loss = 0
         n = 0
 
@@ -155,16 +155,18 @@ class MultilayerPerceptron:
 
         for X_test, Y_test in test_generator:
             YHat = self.forward(X_test)
+            if denormalizer:
+                YHat = denormalizer(YHat)
             total_loss += np.sum((Y_test - YHat) ** 2)
             n += 1
 
         return np.sqrt(total_loss / n)
 
-    def test(self, data_loader: DataLoader, mode: Literal['classification', 'regression']) -> np.ndarray:
+    def test(self, data_loader: DataLoader, mode: Literal['classification', 'regression'], denormalizer=None) -> np.ndarray:
         if mode == "classification":
             return self._test_classification(data_loader)
         elif mode == "regression":
-            return self._test_regression(data_loader)
+            return self._test_regression(data_loader, denormalizer=denormalizer)
         else:
             raise ValueError("Invalid mode. Must be 'classification' or 'regression'.")
 
