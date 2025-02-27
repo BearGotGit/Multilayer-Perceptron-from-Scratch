@@ -2,11 +2,14 @@
 
 This project implements a Multilayer Perceptron (MLP) with various activation and loss functions. It also provides a `DataLoader` class for handling dataset splitting and batch generation. The code is written in Python 3.9.21.
 
+If you're running an OS other than Mac OS, you may need to adapt the commands to your use case.
+
 ## Environment Setup
 
 1. **Install Conda**: If you haven't installed Conda yet, follow the instructions on the [official Conda website](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
 2. **Create and Activate Conda Environment**:
+   Run the commands and press [y] when prompted:
 
    ```sh
    conda create --name project_1_berend_grandt_env python=3.10.16
@@ -25,13 +28,13 @@ This project implements a Multilayer Perceptron (MLP) with various activation an
    To run the MNIST classification task, execute the following command (from root directory):
 
    ```sh
-   python3 mnist_from_scratch.py
+   python3 train_mnist.py
    ```
 2. **Vehicle MPG Regression**:
    To run the vehicle MPG regression task, execute the following command:
 
    ```sh
-   python3 mpg_from_scratch.py
+   python3 train_mpg.py
    ```
 
 ## Project Structure

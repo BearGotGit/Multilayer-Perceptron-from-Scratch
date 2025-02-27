@@ -1,7 +1,7 @@
 import numpy as np
 
 from src.DataLoaders import DataLoader
-from src.Functions import Tanh, Relu, Linear, SquaredError, Sigmoid, MeanSquaredError
+from src.Functions import Linear, SquaredError, Sigmoid
 from src.Layers import Layer, MultilayerPerceptron
 
 from data.mpg_dataset import AUTO_MPG_NORMALIZED_FEATURES, AUTO_MLP_NORMALIZED_LABELS, auto_mpg_denormalize_labels, \

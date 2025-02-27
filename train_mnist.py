@@ -1,7 +1,7 @@
 import numpy as np
 
 from src.DataLoaders import DataLoader
-from src.Functions import Softmax, Relu, Linear, SquaredError, CrossEntropy, Sigmoid, MeanSquaredError, Mish, SoftPlus
+from src.Functions import Relu, SquaredError, Sigmoid, MeanSquaredError, Mish, SoftPlus, CrossEntropy, Softmax
 from src.Layers import Layer, MultilayerPerceptron
 
 from data.mnist import MNIST_TRAIN_FEATURES, MNIST_TRAIN_LABELS, MNIST_TEST_FEATURES, MNIST_TEST_LABELS, \
@@ -13,8 +13,8 @@ seed = 69
 
 h1 = Layer(784, 64, Relu(), seed)
 h2 = Layer(64, 32, Relu(), seed)
-h3 = Layer(32, 20, SoftPlus(), seed)
-out = Layer(20, 10, Sigmoid(), seed)
+h3 = Layer(32, 20, Relu(), seed)
+out = Layer(20, 10, Softmax(), seed)
 
 mlp = MultilayerPerceptron((h1, h2, h3, out))
 
@@ -25,7 +25,7 @@ mnist_test_dataloader = DataLoader(MNIST_TEST_FEATURES, MNIST_TEST_LABELS, 0, 0,
 
 # Train
 
-mlp.train(mnist_dataloader, SquaredError(), learning_rate=1E-3, batch_size=32, epochs=15)
+mlp.train(mnist_dataloader, CrossEntropy(), learning_rate=1E-3, batch_size=32, epochs=15)
 
 # Graph
 

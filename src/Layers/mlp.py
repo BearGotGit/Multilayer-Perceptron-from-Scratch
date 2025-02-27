@@ -1,11 +1,10 @@
 import numpy as np
 from typing import Tuple, Literal
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 
 from src.DataLoaders import DataLoader
 from src.Layers import Layer
-from src.Functions import LossFunction, MeanSquaredError, Softmax, CrossEntropy
+from src.Functions import LossFunction, Softmax, CrossEntropy
 
 
 class MultilayerPerceptron:
