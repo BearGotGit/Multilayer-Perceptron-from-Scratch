@@ -1,6 +1,6 @@
 # Foundational Models Project 1
 
-This project implements a Multilayer Perceptron (MLP) and includes various activation and loss functions. The project also includes a DataLoader class for handling dataset splitting and batch generation.
+This project implements a Multilayer Perceptron (MLP) with various activation and loss functions. It also provides a `DataLoader` class for handling dataset splitting and batch generation. The code is written in Python 3.9.21.
 
 ## Environment Setup
 
@@ -9,96 +9,63 @@ This project implements a Multilayer Perceptron (MLP) and includes various activ
 2. **Create and Activate Conda Environment**:
 
    ```sh
-   conda create --name berend_grandt_foundational_ai_project_1 python=3.11
-   conda activate berend_grandt_foundational_ai_project_1
+   conda create --name project_1_berend_grandt_env python=3.10.16
+   conda activate project_1_berend_grandt_env
    ```
 
-3. **Install Dependencies**: #FIXME: This is actually not right. Update when done:
+3. **Install Dependencies**:  
+   Install the required dependencies using pip:
+
    ```sh
-   conda install --file requirements.txt
+   pip install -r requirements.txt
+   ```
+
+## Running
+1. **MNIST Classification**:
+   To run the MNIST classification task, execute the following command (from root directory):
+
+   ```sh
+   python3 mnist_from_scratch.py
+   ```
+2. **Vehicle MPG Regression**:
+   To run the vehicle MPG regression task, execute the following command:
+
+   ```sh
+   python3 mpg_from_scratch.py
    ```
 
 ## Project Structure
 
-```
+```sh
 .
-├── src
-│   ├── __init__.py           # Package initialization
-│   ├── activation_functions.py # Implementation of activation functions
-│   ├── data_loader.py        # Implementation of DataLoader class
-│   ├── loss_functions.py     # Implementation of loss functions
-│   └── mlp.py                # Implementation of MLP and related classes
-├── testing
-│   ├── __init__.py           # Package initialization
-│   ├── test_torch_mlp.py     # Testing against torch implementation
-│   └── test_mlp.py           # Unit tests for the MLP implementation
-├── requirements.txt          # List of dependencies
-└── README.md                 # Project documentation
+├── data/
+│   ├── mnist/                # MNIST dataset
+│   ├── mnist.py              # exports MNIST dataset
+│   └──  mpg_dataset.py        # downloads and exports vehicle MPG dataset
+│
+├── src/
+│   ├── DataLoaders/
+│   │   └── data_loader.py    # DataLoader class for dataset splitting and batch generation
+│   │
+│   ├── Functions/
+│   │   ├── activations.py    # Activation functions
+│   │   └── losses.py         # Loss functions
+│   │
+│   ├── Layers/
+│   │   ├── layer.py          # Base class for neural network layers
+│   │   └── mlp.py            # Multilayer Perceptron 
+│   └── Optimizers/
+│
+├── mnist_from_scratch.py     # MNIST classification using MLP
+├── mpg_from_scratch.py       # Vehicle MPG regression using MLP
+└── requirements.txt          # Project dependencies
 ```
 
-## Running Tests
+## Datasets
 
-To run the tests and check the coverage, use the following commands:
+- L. Deng, "The MNIST Database of Handwritten Digit Images for Machine Learning Research [Best of the Web]," in IEEE Signal Processing Magazine, vol. 29, no. 6, pp. 141-142, Nov. 2012, doi: 10.1109/MSP.2012.2211477. 
+- R. Quinlan. "Auto MPG," UCI Machine Learning Repository, 1993. [Online]. Available: https://doi.org/10.24432/C5859H.
 
-```sh
-coverage run --source=src -m unittest discover -s testing -p "*.py" -v
-coverage report -m
-```
-
-To see the report as an HTML page, use this command and open the generated url:
-
-```sh
-coverage html
-```
-
-## Usage
-
-### DataLoader
-
-The `DataLoader` class is used to split the dataset into training, validation, and test sets and generate batches for training.
-
-### Activation Functions
-
-The project includes the following activation functions:
-
-- Sigmoid
-- Tanh
-- Relu
-- Softmax
-- Linear
-
-### Loss Functions
-
-The project includes the following loss functions:
-
-- SquaredError
-- CrossEntropy
-
-### Multilayer Perceptron
-
-The `MultilayerPerceptron` class is used to create and train a multilayer perceptron.
-
-## Example
-
-Here is an example of how to use the `MultilayerPerceptron` class:
-
-```python
-from src.mlp import DataLoader, Sigmoid, Layer, MultilayerPerceptron, SquaredError
-
-# Create a DataLoader instance
-data_loader = DataLoader((train_x, train_y), num_train=100, num_valid=20, num_test=20, seed=42)
-
-# Define the layers
-layer1 = Layer(2, 2, Sigmoid())
-layer2 = Layer(2, 1, Sigmoid())
-
-# Create the MLP
-mlp = MultilayerPerceptron((layer1, layer2))
-
-# Train the MLP
-training_losses, validation_losses = mlp.train(train_x, train_y, val_x, val_y, SquaredError(), learning_rate=0.001, batch_size=16, epochs=32)
-```
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+### MNIST Reader 
+- https://www.kaggle.com/code/hojjatk/read-mnist-dataset?scriptVersionId=9466282&cellId=1
+- https://www.kaggle.com/code/hojjatk/read-mnist-dataset?scriptVersionId=9466282&cellId=2

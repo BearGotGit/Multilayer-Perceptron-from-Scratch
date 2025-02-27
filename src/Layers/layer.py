@@ -12,6 +12,8 @@ class Layer:
         :param fan_out: number of neurons in this layer
         :param activation_function: instance of an ActivationFunction
         """
+        np.random.seed(seed)
+
         self.fan_in = fan_in
         self.fan_out = fan_out
         self.activation_function = activation_function
@@ -58,7 +60,7 @@ class Layer:
         #   dO_dz is n x 10 x 10, rather than usual n x 10
         #   In special case, want to treat delta as n x (1 x 10), rather than n x 10,
         #   then collapse back to n x 10, so rest of backprop works.
-        #   Can use einsum to represent this logic more concisely.
+        #   We can use einsum to represent this logic more concisely.
         elif isinstance(self.activation_function, Softmax):
             self.dL_dz = np.einsum("bj, bjk -> bk", delta, self.dO_dz)
         else:

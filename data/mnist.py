@@ -1,4 +1,8 @@
-# BASICALLY ENTIRE FILE COPIED FROM WEBSITE
+# L. Deng, "The MNIST Database of Handwritten Digit Images for Machine Learning Research [Best of the Web]," in IEEE Signal Processing Magazine, vol. 29, no. 6, pp. 141-142, Nov. 2012, doi: 10.1109/MSP.2012.2211477.
+
+# Most code copied:
+# https://www.kaggle.com/code/hojjatk/read-mnist-dataset?scriptVersionId=9466282&cellId=1
+# https://www.kaggle.com/code/hojjatk/read-mnist-dataset?scriptVersionId=9466282&cellId=2
 
 import numpy as np
 import struct
@@ -62,7 +66,7 @@ import matplotlib.pyplot as plt
 #
 # (NOTE: This is called from src/from_scratch.py), so would need to update the data_directory if called from somewhere else...
 #
-data_directory = '../data/mnist'
+data_directory = './data/mnist'
 training_images_filepath = join(data_directory, 'train-images.idx3-ubyte')
 training_labels_filepath = join(data_directory, 'train-labels.idx1-ubyte')
 test_images_filepath = join(data_directory, 't10k-images.idx3-ubyte')
@@ -82,7 +86,7 @@ def show_images(images, title_texts):
         plt.subplot(rows, cols, index)
         plt.imshow(image, cmap=plt.cm.gray)
         if (title_text != ''):
-            plt.title(title_text, fontsize = 15);
+            plt.title(title_text, fontsize = 15)
         index += 1
 
     plt.show()
@@ -113,19 +117,16 @@ MNIST_TEST_LABELS = np.eye(10)[test_y]
 10K test samples, 10 classes, one-hot encoded. [1 0 ... 0] for 0, [0 1 ... 0] for 1, etc.
 '''
 
-#
-# Show some random training and test images
-#
-images_2_show = []
-titles_2_show = []
+print("MNIST dataset loaded.")
+
+
+IMAGES_2_TEST = []
+TITLES_2_COMPARE = []
+
 for i in range(0, 10):
-    r = random.randint(1, 60000)
-    images_2_show.append(train_x[r])
-    titles_2_show.append('training image [' + str(r) + '] = ' + str(train_y[r]))
+    r = list(test_y[:100]).index(i)
+    IMAGES_2_TEST.append(test_x[r])
+    TITLES_2_COMPARE.append('test image [' + str(r) + '] = ' + str(test_y[r]))
 
-for i in range(0, 5):
-    r = random.randint(1, 10000)
-    images_2_show.append(test_x[r])
-    titles_2_show.append('test image [' + str(r) + '] = ' + str(test_y[r]))
+show_images(IMAGES_2_TEST, TITLES_2_COMPARE)
 
-show_images(images_2_show, titles_2_show)

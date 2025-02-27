@@ -15,7 +15,7 @@ class LossFunction(ABC):
 
 class SquaredError(LossFunction):
     def loss(self, y_true, y_pred) -> np.ndarray:
-        diff =  (y_true - y_pred)
+        diff = (y_true - y_pred)
         result = 0.5 * diff ** 2
         return result
     
@@ -37,9 +37,6 @@ class CrossEntropy(LossFunction):
         return np.sum(inner, axis=1)
 
     def derivative(self, y_true, y_pred):
-        # FIXME: dL/dZ is this, but not dL/dYHat
-        # return y_pred - y_true
-
         EPSILON = 1e-4
 
         y_pred = np.where(y_pred == 0, EPSILON, y_pred)

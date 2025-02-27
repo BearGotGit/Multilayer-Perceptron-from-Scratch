@@ -74,12 +74,15 @@ class DataLoader:
         if mode == "train":
             indices = self.train_indices
             total_samples = self.num_train
+            self.n_training_batches = total_samples // batch_size
         elif mode == "validate":
             indices = self.valid_indices
             total_samples = self.num_valid
+            self.n_validation_batches = total_samples // batch_size
         elif mode == "test":
             indices = self.test_indices
             total_samples = self.num_test
+            self.n_testing_batches = total_samples // batch_size
         else:
             raise ValueError("Invalid mode. Choose from 'train', 'validate', or 'test'.")
 

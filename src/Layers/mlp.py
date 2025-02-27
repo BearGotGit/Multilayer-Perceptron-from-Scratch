@@ -1,6 +1,7 @@
 import numpy as np
-from typing import Tuple
+from typing import Tuple, Literal
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from src.DataLoaders import DataLoader
 from src.Layers import Layer
@@ -22,12 +23,6 @@ class MultilayerPerceptron:
         :param x: network input
         :return: network output
         """
-
-        #  General implementation based on:
-        # O1 = h1.forward(X)
-        # O2 = h2.forward(O1)
-        # YHat = O3 = h3.forward(O2)
-
         if self.layers is None or len(self.layers) == 0:
             raise ValueError("No layers defined.")
 
@@ -67,14 +62,11 @@ class MultilayerPerceptron:
         dL_dB.reverse()
         return dL_dW, dL_dB
 
-    def train(self, data_loader: DataLoader, loss_function: LossFunction, learning_rate: float=1E-3, batch_size: int=16, epochs: int=32, chart_batch: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+    def train(self, data_loader: DataLoader, loss_function: LossFunction, learning_rate: float=1E-3, batch_size: int=16, epochs: int=32) -> Tuple[np.ndarray, np.ndarray]:
         """
         Train the multilayer perceptron
 
-        :param train_x: full training set input of shape (n x d) n = number of samples, d = number of features
-        :param train_y: full training set output of shape (n x q) n = number of samples, q = number of outputs per sample
-        :param val_x: full validation set input
-        :param val_y: full validation set output
+        :param data_loader: DataLoader instance which enables batch generation for train, validate, and test sets.
         :param loss_function: instance of a LossFunction
         :param learning_rate: learning rate for parameter updates
         :param batch_size: size of each batch
@@ -82,23 +74,17 @@ class MultilayerPerceptron:
         :return:
         """
 
-        # Check for shape of train_x, train_y ... Make sure wouldn't break in architecture
-
         training_losses = []
         validation_losses = []
 
-        # For all epochs
         for epoch in range(epochs):
-
             train_generator = data_loader.batch_generator(batch_size, mode="train")
             validate_generator = data_loader.batch_generator(batch_size, mode="validate")
 
             training_loss = None
             validation_loss = None
 
-            # For each batch in an epoch
             for (X_train, Y_train), (X_val, Y_val) in data_loader.zip_generators(train_generator, validate_generator):
-
                 # Forward and backward
                 YHat = self.forward(X_train)
                 dL_dW, dL_dB = self.backward(loss_function, Y_train, YHat)
@@ -109,39 +95,48 @@ class MultilayerPerceptron:
                     layer.b -= learning_rate * dL_dB_l
 
                 # Training loss for chart
-                training_loss = loss_function.loss(Y_train, YHat).mean()
-                if chart_batch:
-                    training_losses.append(training_loss)
+                if training_loss is None:
+                    training_loss = 0
+                training_loss += loss_function.loss(Y_train, YHat).sum()
 
-                # Validation loss for chart (if valid this batch)
+                # Validation loss for chart (if exists this batch)
                 if (X_val is None) or (Y_val is None):
-                    if chart_batch:
-                        validation_losses.append(None)
                     continue
 
                 YHat = self.forward(X_val)
-                validation_loss = loss_function.loss(Y_val, YHat).mean()
-                if chart_batch:
-                    validation_losses.append(validation_loss)
+                if validation_loss is None:
+                    validation_loss = 0
+                validation_loss += loss_function.loss(Y_val, YHat).sum()
 
-            # Option to chart epoch, not batch
-            if not chart_batch:
-                training_losses.append(training_loss)
-                validation_losses.append(validation_loss)
+            # Run through rest of validation batches, if exist (requirement of assignment)
+            for X_val, Y_val in validate_generator:
+                YHat = self.forward(X_val)
+                validation_loss += loss_function.loss(Y_val, YHat)
 
-        self.training_losses = training_losses
-        self.validation_losses = validation_losses
+            # Average losses
+            training_loss /= data_loader.n_training_batches
+            validation_loss /= data_loader.n_validation_batches
+
+            training_losses.append(training_loss)
+            validation_losses.append(validation_loss)
+
+            print(f"Epoch {epoch + 1}/{epochs} - \tTraining Loss: {training_loss:.8f}\t\t|\t\tValidation Loss: {validation_loss:.8f}")
+
+        self.training_losses = np.array(training_losses)
+        self.validation_losses = np.array(validation_losses)
 
         return self.training_losses, self.validation_losses
 
-    def test(self, data_loader: DataLoader) -> np.ndarray:
+    def _test_classification(self, data_loader: DataLoader) -> np.ndarray:
         """
-        Test the multilayer perceptron
+        Test the multilayer perceptron for classification
         """
         total_correct = 0
         total = 0
 
-        for X_test, Y_test in data_loader.batch_generator(batch_size=1, mode="test"):
+        test_generator = data_loader.batch_generator(batch_size=1, mode="test")
+
+        for X_test, Y_test in test_generator:
             YHat = self.forward(X_test)
             predicted_class = np.argmax(YHat, axis=1)
             correct_class = np.argmax(Y_test, axis=1)
@@ -150,11 +145,28 @@ class MultilayerPerceptron:
                 total_correct += 1
             total += 1
 
-        if total == 0:
-            print("No no no.")
-            return np.array(0)
-
         return total_correct * 1.0 / total
+
+    def _test_regression(self, data_loader: DataLoader) -> np.ndarray:
+        total_loss = 0
+        n = 0
+
+        test_generator = data_loader.batch_generator(batch_size=1, mode="test")
+
+        for X_test, Y_test in test_generator:
+            YHat = self.forward(X_test)
+            total_loss += np.sum((Y_test - YHat) ** 2)
+            n += 1
+
+        return np.sqrt(total_loss / n)
+
+    def test(self, data_loader: DataLoader, mode: Literal['classification', 'regression']) -> np.ndarray:
+        if mode == "classification":
+            return self._test_classification(data_loader)
+        elif mode == "regression":
+            return self._test_regression(data_loader)
+        else:
+            raise ValueError("Invalid mode. Must be 'classification' or 'regression'.")
 
     def graph_training_losses(self):
         training = self.training_losses
