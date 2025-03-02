@@ -25,7 +25,7 @@ mnist_test_dataloader = DataLoader(MNIST_TEST_FEATURES, MNIST_TEST_LABELS, 0, 0,
 
 # Train
 
-mlp.train(mnist_dataloader, CrossEntropy(), learning_rate=1E-3, batch_size=32, epochs=15)
+mlp.train(mnist_dataloader, CrossEntropy(), rmsprop_beta=0.95, rmsprop_epsilon=10e-8, learning_rate=1E-3, batch_size=32, epochs=15)
 
 # Graph
 

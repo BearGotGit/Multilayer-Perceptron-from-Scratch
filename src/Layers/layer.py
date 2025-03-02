@@ -21,8 +21,11 @@ class Layer:
         # Initialize weights and biases
         glorot_stddev = np.sqrt(2 / (fan_in + fan_out) )
         self.W = np.random.normal(0, glorot_stddev, (fan_in, fan_out))
-
         self.b = np.zeros([1, fan_out])
+
+        # Initialize RMSProp variables
+        self.v_W = np.zeros_like(self.W)
+        self.v_b = np.zeros_like(self.b)
 
     def forward(self, h: np.ndarray):
         """
@@ -44,11 +47,14 @@ class Layer:
         # Return forward
         return O
 
-    def backward(self, delta: np.ndarray, dL_dz_softmax_and_crossentropy: np.ndarray = None) -> Tuple[np.ndarray, np.ndarray]:
+    def backward(self, delta: np.ndarray, dL_dz_softmax_and_crossentropy: np.ndarray = None, rmsprop_beta = None, rmsprop_epsilon = None) -> Tuple[np.ndarray, np.ndarray]:
         """
         Apply backpropagation to this layer and return the weight and bias gradients
 
         :param delta: delta term from layer above
+        :param dL_dz_softmax_and_crossentropy: special case for softmax and cross entropy loss function
+        :param rmsprop_beta: RMSProp decay rate
+        :param rmsprop_epsilon: small value to avoid division by zero
         :return: (weight gradients, bias gradients)
         """
 
@@ -69,5 +75,14 @@ class Layer:
         dL_dW = np.matmul(self.h.T, self.dL_dz)
         dL_dB = np.matmul(self.dL_dz, self.dz_db)
         dL_dB = np.sum(dL_dB, axis=0, keepdims=True)
+
+        if rmsprop_beta is not None and rmsprop_epsilon is not None:
+            # Update RMSProp variables
+            self.v_W = rmsprop_beta * self.v_W + (1 - rmsprop_beta) * (dL_dW ** 2)
+            self.v_b = rmsprop_beta * self.v_b + (1 - rmsprop_beta) * (dL_dB ** 2)
+
+            # Adjust gradients if RMSProp
+            dL_dW = dL_dW / (np.sqrt(self.v_W) + rmsprop_epsilon)
+            dL_dB = dL_dB / (np.sqrt(self.v_b) + rmsprop_epsilon)
 
         return dL_dW, dL_dB
