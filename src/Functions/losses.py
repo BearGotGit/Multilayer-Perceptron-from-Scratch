@@ -35,13 +35,13 @@ class CrossEntropy(LossFunction):
         # log(x) is actually ln(x) here
 
         # for numerical stability
-        y_pred = np.clip(y_pred, 1e-10, 1)
+        y_pred = np.clip(y_pred, 1e-8, 1)
 
         inner = np.multiply(-y_true, np.log(y_pred))
         return np.sum(inner, axis=1)
 
     def derivative(self, y_true, y_pred):
-        EPSILON = 1e-4
+        EPSILON = 1e-6
 
         y_pred = np.where(y_pred == 0, EPSILON, y_pred)
         return -y_true / y_pred

@@ -13,7 +13,6 @@ class Layer:
         :param activation_function: instance of an ActivationFunction
         """
         np.random.seed(seed)
-        self.dropout_generator = np.random.Generator(np.random.PCG64(seed))
 
         self.fan_in = fan_in
         self.fan_out = fan_out
@@ -26,21 +25,22 @@ class Layer:
 
         self.b = np.zeros([1, fan_out])
 
-    def forward(self, h: np.ndarray, dropout: bool = False) -> np.ndarray:
+    def forward(self, h: np.ndarray, dropout_rng = None) -> np.ndarray:
         """
         Computes the activations for this layer
 
         :param h: input to layer
+        :param dropout_rng: a random number generator for dropout reproducibility
         :return: layer activations
         """
         # Forward only
         z = np.matmul(h, self.W) + self.b
         O = self.activation_function.forward(z)
 
-        # Dropout
-        if dropout:
-            mask = self.dropout_generator.binomial(1, 1 - self.dropout_probability, O.shape)
-            O = np.multiply(O, mask)
+        # Dropout and scale to preserve same expectation
+        if dropout_rng:
+            mask = dropout_rng.binomial(1, 1 - self.dropout_probability, size=O.shape)
+            O = np.multiply(mask, O) / (1 - self.dropout_probability)
 
         # Useful for backprop
         self.h = h

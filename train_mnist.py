@@ -11,12 +11,37 @@ seed = 69
 
 # Architecture
 
-h1 = Layer(784, 64, Relu(), seed=seed)
-h2 = Layer(64, 32, Relu(), dropout_probability=0.1, seed=seed)
-h3 = Layer(32, 20, Relu(), seed=seed)
-out = Layer(20, 10, Softmax(), seed=seed)
+h1 = Layer(784, 256, Relu(),
+           dropout_probability=0.3,
+           seed=seed)
+h1_half = Layer(256, 256, Relu(),
+                dropout_probability=0.3,
+                seed=seed)
+h2 = Layer(256, 128, Relu(),
+           dropout_probability=0.3,
+           seed=seed)
+h2_half = Layer(128, 128, Relu(),
+                dropout_probability=0.3,
+                seed=seed)
+h3 = Layer(128, 64, Sigmoid(), seed=seed)
 
-mlp = MultilayerPerceptron((h1, h2, h3, out))
+h4 = Layer(64, 64, Relu(),
+           dropout_probability=0.3,
+           seed=seed)
+h4_half = Layer(64, 32, Relu(),
+                dropout_probability=0.3,
+                seed=seed)
+h5 = Layer(32, 32, Relu(),
+           dropout_probability=0.3,
+           seed=seed)
+h5_half = Layer(32, 16, Relu(),
+                dropout_probability=0.3,
+                seed=seed)
+h6 = Layer(16, 16, Relu(), seed=seed)
+
+out = Layer(16, 10, Softmax(), seed=seed)
+
+mlp = MultilayerPerceptron((h1, h1_half, h2, h2_half, h3, h4 , h4_half, h5 , h5_half, h6, out), seed=seed)
 
 # Data
 
@@ -25,7 +50,7 @@ mnist_test_dataloader = DataLoader(MNIST_TEST_FEATURES, MNIST_TEST_LABELS, 0, 0,
 
 # Train
 
-mlp.train(mnist_dataloader, CrossEntropy(), learning_rate=1E-3, batch_size=32, epochs=15, dropout=True)
+mlp.train(mnist_dataloader, CrossEntropy(), learning_rate=1E-2, batch_size=18, epochs=15, dropout=True)
 
 # Graph
 

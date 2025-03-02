@@ -8,18 +8,20 @@ from src.Functions import LossFunction, Softmax, CrossEntropy
 
 
 class MultilayerPerceptron:
-    def __init__(self, layers: Tuple[Layer]):
+    def __init__(self, layers: Tuple[Layer], seed: int):
         """
         Create a multilayer perceptron (densely connected multilayer neural network)
         :param layers: list or Tuple of layers
         """
         self.layers = layers
+        self.dropout_rng = np.random.Generator(np.random.PCG64(seed))
 
     def forward(self, X: np.ndarray, dropout: bool = False) -> np.ndarray:
         """
         This takes the network input and computes the network output (forward propagation)
 
-        :param x: network input
+        :param X: network input
+        :param dropout: whether to apply dropout
         :return: network output
         """
         if self.layers is None or len(self.layers) == 0:
@@ -27,7 +29,7 @@ class MultilayerPerceptron:
 
         prev_output = X
         for layer in self.layers:
-            prev_output = layer.forward(prev_output, dropout)
+            prev_output = layer.forward(prev_output, self.dropout_rng if dropout else None)
         YHat = prev_output
         return YHat
 

@@ -77,7 +77,7 @@ class Softmax(ActivationFunction):
                 represents the softmax probabilities of the corresponding input row.
         """
         e_raise = np.exp(x)
-        e_raise = np.clip(e_raise, 1e-10, 1e100)
+        e_raise = np.clip(e_raise, 1e-8, 1e100)
 
         sum_term = np.sum(e_raise, axis=1).reshape(-1, 1)
 
