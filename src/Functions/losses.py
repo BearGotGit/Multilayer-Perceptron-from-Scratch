@@ -33,6 +33,10 @@ class MeanSquaredError(SquaredError):
 class CrossEntropy(LossFunction):
     def loss(self, y_true, y_pred):
         # log(x) is actually ln(x) here
+
+        # for numerical stability
+        y_pred = np.clip(y_pred, 1e-10, 1)
+
         inner = np.multiply(-y_true, np.log(y_pred))
         return np.sum(inner, axis=1)
 

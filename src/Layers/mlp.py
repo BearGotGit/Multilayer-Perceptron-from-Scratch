@@ -15,7 +15,7 @@ class MultilayerPerceptron:
         """
         self.layers = layers
 
-    def forward(self, X: np.ndarray) -> np.ndarray:
+    def forward(self, X: np.ndarray, dropout: bool = False) -> np.ndarray:
         """
         This takes the network input and computes the network output (forward propagation)
 
@@ -27,7 +27,7 @@ class MultilayerPerceptron:
 
         prev_output = X
         for layer in self.layers:
-            prev_output = layer.forward(prev_output)
+            prev_output = layer.forward(prev_output, dropout)
         YHat = prev_output
         return YHat
 
@@ -61,7 +61,7 @@ class MultilayerPerceptron:
         dL_dB.reverse()
         return dL_dW, dL_dB
 
-    def train(self, data_loader: DataLoader, loss_function: LossFunction, learning_rate: float=1E-3, batch_size: int=16, epochs: int=32) -> Tuple[np.ndarray, np.ndarray]:
+    def train(self, data_loader: DataLoader, loss_function: LossFunction, learning_rate: float=1E-3, batch_size: int=16, epochs: int=32, dropout: bool = False) -> Tuple[np.ndarray, np.ndarray]:
         """
         Train the multilayer perceptron
 
@@ -85,7 +85,7 @@ class MultilayerPerceptron:
 
             for (X_train, Y_train), (X_val, Y_val) in data_loader.zip_generators(train_generator, validate_generator):
                 # Forward and backward
-                YHat = self.forward(X_train)
+                YHat = self.forward(X_train, dropout)
                 dL_dW, dL_dB = self.backward(loss_function, Y_train, YHat)
 
                 # Update weights and biases

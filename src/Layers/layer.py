@@ -4,7 +4,7 @@ from src.Functions import ActivationFunction, Softmax
 
 
 class Layer:
-    def __init__(self, fan_in: int, fan_out: int, activation_function: ActivationFunction, seed: int = 69):
+    def __init__(self, fan_in: int, fan_out: int, activation_function: ActivationFunction, dropout_probability: float = 0, seed: int = 69):
         """
         Initializes a layer of neurons
 
@@ -13,10 +13,12 @@ class Layer:
         :param activation_function: instance of an ActivationFunction
         """
         np.random.seed(seed)
+        self.dropout_generator = np.random.Generator(np.random.PCG64(seed))
 
         self.fan_in = fan_in
         self.fan_out = fan_out
         self.activation_function = activation_function
+        self.dropout_probability = dropout_probability
 
         # Initialize weights and biases
         glorot_stddev = np.sqrt(2 / (fan_in + fan_out) )
@@ -24,7 +26,7 @@ class Layer:
 
         self.b = np.zeros([1, fan_out])
 
-    def forward(self, h: np.ndarray):
+    def forward(self, h: np.ndarray, dropout: bool = False) -> np.ndarray:
         """
         Computes the activations for this layer
 
@@ -34,6 +36,11 @@ class Layer:
         # Forward only
         z = np.matmul(h, self.W) + self.b
         O = self.activation_function.forward(z)
+
+        # Dropout
+        if dropout:
+            mask = self.dropout_generator.binomial(1, 1 - self.dropout_probability, O.shape)
+            O = np.multiply(O, mask)
 
         # Useful for backprop
         self.h = h
