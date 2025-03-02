@@ -31,12 +31,14 @@ class MultilayerPerceptron:
         YHat = prev_output
         return YHat
 
-    def backward(self, loss_function: LossFunction, Y: np.ndarray, YHat: np.ndarray) -> Tuple[list, list]:
+    def backward(self, loss_function: LossFunction, Y: np.ndarray, YHat: np.ndarray, rmsprop_beta: float = None, rmsprop_epsilon: float = None) -> Tuple[list, list]:
         """
         Applies backpropagation to compute the gradients of the weights and biases for all layers in the network
         :param loss_function: function used to compute loss and its derivative
         :param Y: Y samples for batch
         :param YHat: forward-generated YHat samples corresponding to Y
+        :param rmsprop_beta: RMSProp decay rate
+        :param rmsprop_epsilon: small value to avoid division by zero
         :return: (List of weight gradients for all layers, List of bias gradients for all layers)
         """
 
@@ -51,7 +53,7 @@ class MultilayerPerceptron:
                 soft_cross_special_case_dL_dz = YHat - Y
 
             # General case
-            dL_dW_l, dL_dB_l = layer.backward(delta, soft_cross_special_case_dL_dz)
+            dL_dW_l, dL_dB_l = layer.backward(delta, soft_cross_special_case_dL_dz, rmsprop_beta, rmsprop_epsilon)
             dL_dW.append(dL_dW_l)
             dL_dB.append(dL_dB_l)
 
@@ -61,7 +63,7 @@ class MultilayerPerceptron:
         dL_dB.reverse()
         return dL_dW, dL_dB
 
-    def train(self, data_loader: DataLoader, loss_function: LossFunction, learning_rate: float=1E-3, batch_size: int=16, epochs: int=32) -> Tuple[np.ndarray, np.ndarray]:
+    def train(self, data_loader: DataLoader, loss_function: LossFunction, learning_rate: float=1E-3, batch_size: int=16, epochs: int=32, rmsprop_beta: float = None, rmsprop_epsilon: float = None) -> Tuple[np.ndarray, np.ndarray]:
         """
         Train the multilayer perceptron
 
@@ -70,6 +72,8 @@ class MultilayerPerceptron:
         :param learning_rate: learning rate for parameter updates
         :param batch_size: size of each batch
         :param epochs: number of epochs
+        :param rmsprop_beta: RMSProp decay rate
+        :param rmsprop_epsilon: small value to avoid division by zero
         :return:
         """
 
@@ -86,7 +90,7 @@ class MultilayerPerceptron:
             for (X_train, Y_train), (X_val, Y_val) in data_loader.zip_generators(train_generator, validate_generator):
                 # Forward and backward
                 YHat = self.forward(X_train)
-                dL_dW, dL_dB = self.backward(loss_function, Y_train, YHat)
+                dL_dW, dL_dB = self.backward(loss_function, Y_train, YHat, rmsprop_beta, rmsprop_epsilon)
 
                 # Update weights and biases
                 for layer, (dL_dW_l, dL_dB_l) in zip(self.layers, zip(dL_dW, dL_dB)):
