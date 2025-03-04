@@ -9,39 +9,30 @@ from data.mnist import MNIST_TRAIN_FEATURES, MNIST_TRAIN_LABELS, MNIST_TEST_FEAT
 
 seed = 69
 
-# Architecture
+# Deep Architecture with about twice as many layers
+h1 = Layer(784, 512, Sigmoid(), dropout_probability=0.3, seed=seed)
+h2 = Layer(512, 256, Sigmoid(), dropout_probability=0.3, seed=seed)
+h3 = Layer(256, 256, Sigmoid(), dropout_probability=0.3, seed=seed)
+h4 = Layer(256, 128, Sigmoid(), dropout_probability=0.3, seed=seed)
+h5 = Layer(128, 128, Sigmoid(), dropout_probability=0.3, seed=seed)
+h6 = Layer(128, 64, Sigmoid(), dropout_probability=0.3, seed=seed)
+h7 = Layer(64, 64, Sigmoid(), dropout_probability=0.3, seed=seed)
+h8 = Layer(64, 64, Sigmoid(), dropout_probability=0.3, seed=seed)
 
-h1 = Layer(784, 256, Relu(),
-           dropout_probability=0.3,
-           seed=seed)
-h1_half = Layer(256, 256, Relu(),
-                dropout_probability=0.3,
-                seed=seed)
-h2 = Layer(256, 128, Relu(),
-           dropout_probability=0.3,
-           seed=seed)
-h2_half = Layer(128, 128, Relu(),
-                dropout_probability=0.3,
-                seed=seed)
-h3 = Layer(128, 64, Sigmoid(), seed=seed)
+# Building up again (widening)
+h9  = Layer(64, 128, Sigmoid(), dropout_probability=0.3, seed=seed)
+h10 = Layer(128, 128, Sigmoid(), dropout_probability=0.3, seed=seed)
+h11 = Layer(128, 256, Sigmoid(), dropout_probability=0.3, seed=seed)
+h12 = Layer(256, 256, Sigmoid(), dropout_probability=0.3, seed=seed)
+h13 = Layer(256, 512, Sigmoid(), dropout_probability=0.3, seed=seed)
 
-h4 = Layer(64, 64, Relu(),
-           dropout_probability=0.3,
-           seed=seed)
-h4_half = Layer(64, 32, Relu(),
-                dropout_probability=0.3,
-                seed=seed)
-h5 = Layer(32, 32, Relu(),
-           dropout_probability=0.3,
-           seed=seed)
-h5_half = Layer(32, 16, Relu(),
-                dropout_probability=0.3,
-                seed=seed)
-h6 = Layer(16, 16, Relu(), seed=seed)
+# Compressing towards the output
+h14 = Layer(512, 256, Sigmoid(), dropout_probability=0.3, seed=seed)
+h15 = Layer(256, 128, Sigmoid(), dropout_probability=0.3, seed=seed)
+h16 = Layer(128, 64, Sigmoid(), dropout_probability=0.3, seed=seed)
+out = Layer(64, 10, Softmax(), seed=seed)
 
-out = Layer(16, 10, Softmax(), seed=seed)
-
-mlp = MultilayerPerceptron((h1, h1_half, h2, h2_half, h3, h4 , h4_half, h5 , h5_half, h6, out), seed=seed)
+mlp = MultilayerPerceptron((h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, out), seed=seed)
 
 # Data
 
